@@ -94,6 +94,7 @@ export async function fetchTorrents(query, domain, port, site, limit, seedMin, s
                             largestID = m;
                         }
                     } else {
+
                         noSeed ++;
                     }
 
@@ -136,6 +137,42 @@ export async function fetchTorrents(query, domain, port, site, limit, seedMin, s
             console.log(listings);
 
 
+            function postListings(listings) {
+                var title;
+                var size;
+                var seeds;
+                var res;
+                var s;
+                var e;
+                var ele;
+                for (let i = 0; i < listings.length; i++) {
+                    title = listings[i].title;
+                    size = listings[i].size;
+                    seeds = listings[i].seeders;
+                    res = listings[i].resolution;
+                    s = listings[i].season;
+                    e = listings[i].episode;
+
+                    ele = `
+                    <a href="#" title="${title}" class="result w-inline-block">
+                        <div class="title-wrap">
+                            <div class="title">${title}</div>
+                            <div class="title-fade"></div>
+                        </div>
+                        <div class="specs">
+                            <div class="spec seeders">${seeds}</div>
+                            <div class="spec size">${size}</div>
+                            <div class="spec resolution">${res}p</div>
+                        </div>
+                        </a>
+                    `;
+
+                    $('#results').append(ele);
+                }
+                $('.animate').toggle("click");
+            }
+
+            postListings(listings);
             
 
 
