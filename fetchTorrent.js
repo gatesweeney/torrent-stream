@@ -1,7 +1,10 @@
 // API Caller and processor
 
+import play from "./play.js";
+
 export async function fetchTorrents(query, domain, port, site, limit, seedMin, searchAll) {
     
+    $('#lottie').css("display", "block");
     
     //set default api type
     var apiType;
@@ -12,7 +15,7 @@ export async function fetchTorrents(query, domain, port, site, limit, seedMin, s
 
 
     // Log movie currently being queried
-    console.log(`-------------      FIDNING MOVIE       --------\n${query}`);
+    console.log(`-------------      FINDING MOVIE       --------\n${query}`);
     // Remove special characters and URLify the query with %20
     query = query.replace(/[^a-zA-Z0-9 ]/g, '');
     query = query.replaceAll(' ', '%20');
@@ -132,12 +135,12 @@ export async function fetchTorrents(query, domain, port, site, limit, seedMin, s
               }
               
             listings.sort( compare );
-            listings = listings.slice(0, 10);
+            listings = listings.slice(0, 20);
 
             console.log(listings);
 
 
-            function postListings(listings) {
+            async function postListings(listings) {
                 var title;
                 var size;
                 var seeds;
@@ -145,34 +148,60 @@ export async function fetchTorrents(query, domain, port, site, limit, seedMin, s
                 var s;
                 var e;
                 var ele;
+                var magnet;
+                var call;
                 for (let i = 0; i < listings.length; i++) {
                     title = listings[i].title;
-                    size = listings[i].size;
+                    size = parseFloat(listings[i].size / 1024).toFixed(2);
                     seeds = listings[i].seeders;
                     res = listings[i].resolution;
                     s = listings[i].season;
                     e = listings[i].episode;
+                    magnet = listings[i].magnet;
+                    call = `play('${magnet}')`;
 
                     ele = `
-                    <a href="#" title="${title}" class="result w-inline-block">
+                    <a style="cursor: pointer"  title="${title}" magnet="${magnet}" class="result num${i} w-inline-block">
                         <div class="title-wrap">
                             <div class="title">${title}</div>
                             <div class="title-fade"></div>
                         </div>
                         <div class="specs">
                             <div class="spec seeders">${seeds}</div>
-                            <div class="spec size">${size}</div>
+                            <div class="spec size">${size} GB</div>
                             <div class="spec resolution">${res}p</div>
                         </div>
                         </a>
                     `;
 
                     $('#results').append(ele);
+
+                    let link = '.num' + i;
+
+
                 }
-                $('.animate').toggle("click");
+
             }
 
-            postListings(listings);
+            await postListings(listings);
+
+
+            var allButtons = $('.result');
+            console.log("Found", allButtons.length, "div which class starts with num.");
+
+            for (var i = 0; i < allButtons.length; i++) {
+            allButtons[i].addEventListener('click', function() {
+                console.clear();
+                var activeMagnet = $(this).attr("magnet");
+                play(activeMagnet);
+            });
+            }
+
+
+            $('.animate').click();
+            $('#lottie').css("display", "none");
+            $('.exit').css("display", "block");
+
             
 
 
